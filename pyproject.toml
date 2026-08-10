@@ -1,0 +1,70 @@
+[project]
+name = "y2k-fastapi-helpers"
+version = "0.1.0"
+description = "Small FastAPI helpers: cachebusted static file serving and a git hash reader"
+authors = [{ name = "y2k", email = "git@y2kbugger.com" }]
+requires-python = ">=3.14"
+readme = "README.md"
+dependencies = [
+    "fastapi>=0.141",
+    "watchfiles>=1.2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "ty",
+    "pre-commit",
+    "httpx2",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.1,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "."
+module-name = "y2k_fastapi_helpers"
+# Tests live next to the modules they cover; consumers don't need them installed.
+wheel-exclude = ["*_test.py"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+python_files = "*_test.py"
+testpaths = ["y2k_fastapi_helpers"]
+
+[tool.ruff]
+extend-exclude = [
+    ".ipynb_checkpoints",
+    ".pytest_cache",
+    ".ruff_cache",
+    "*.ipynb",
+]
+
+line-length = 190
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["FIX", "TD", "F", "A", "COM", "B", "C4", "E", "U", "ERA", "W1", "W2", "I", "ANN001", "ANN201", "RUF100", "ICN", "SLF", "SIM","PTH","PD","RUF"]
+ignore = ["TD001", "TD002", "TD003", "SIM105", "PD010", "PD002", "PD008", "FIX002", "COM812", "SIM102", "SIM108", "C408", "C416", "E731", "SIM103"]
+
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"*_test.py" = [
+    "F811",   # pytest fixture re-imports look like redefinitions
+    "SLF001", # tests inspect private internals
+]
+
+[tool.ruff.lint.flake8-annotations]
+suppress-none-returning = true
+
+[tool.ruff.format]
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+quote-style = "preserve"
