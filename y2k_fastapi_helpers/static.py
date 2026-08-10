@@ -34,7 +34,13 @@ from watchfiles import watch
 
 
 class StaticFilesWithWhitelist(StaticFiles):
-    def __init__(self, directory: str, included_extensions: Sequence[str]):
+    """Serve static files out of the package root without leaking `*.py`/`*.html`.
+
+    For apps whose templates and Python source sit in the same directory as the
+    static assets: the mount whitelists extensions rather than a subtree.
+    """
+
+    def __init__(self, directory: str | os.PathLike[str], included_extensions: Sequence[str]):
         self.included_extensions = included_extensions
         super().__init__(directory=directory)
 
@@ -47,8 +53,8 @@ class StaticFilesWithWhitelist(StaticFiles):
 
 
 class StaticFileWatcher:
-    def __init__(self, directory: Path, included_extensions: Sequence[str], debounce: int = 1600, step: int = 25):
-        self.root = directory.resolve()
+    def __init__(self, directory: str | os.PathLike[str], included_extensions: Sequence[str], debounce: int = 1600, step: int = 25):
+        self.root = Path(directory).resolve()
         self._included_extensions = tuple(included_extensions)
         self._debounce = debounce
         self._step = step

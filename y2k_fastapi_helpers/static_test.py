@@ -109,7 +109,7 @@ def test_cachebusted_mount_appends_version_via_url_for(watcher: StaticFileWatche
 @pytest.fixture
 def client(tmp_path: Path, watcher: StaticFileWatcher) -> TestClient:
     app = FastAPI()
-    app.router.routes.append(CacheBustedMount("/static", app=StaticFilesWithWhitelist(str(tmp_path), ('css', 'js')), name='static', watcher=watcher))
+    app.router.routes.append(CacheBustedMount("/static", app=StaticFilesWithWhitelist(tmp_path, ('css', 'js')), name='static', watcher=watcher))
     return TestClient(app)
 
 
