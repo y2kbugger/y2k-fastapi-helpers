@@ -10,6 +10,14 @@ dependencies = [
     "watchfiles>=1.2",
 ]
 
+# Per-module deps that consumers of the *other* helpers shouldn't have to install.
+[project.optional-dependencies]
+md-docs = [
+    "jinja2>=3.1",
+    "markdown-it-py[linkify]>=4.2",
+    "markupsafe>=2.1",
+]
+
 [dependency-groups]
 dev = [
     "pytest",
@@ -17,6 +25,7 @@ dev = [
     "ty",
     "pre-commit",
     "httpx2",
+    "y2k-fastapi-helpers[md-docs]",
 ]
 
 [build-system]

@@ -1,0 +1,42 @@
+.md-docs {
+  display: grid;
+  grid-template-columns: 15rem 1fr;
+  gap: 2rem;
+  align-items: start;
+
+  aside {
+    position: sticky;
+    top: 1rem;
+    font-size: 0.8125rem;
+
+    ul {
+      padding: 0;
+      list-style: none;
+
+      li {
+        margin: 0;
+        padding: 0.125rem 0;
+      }
+    }
+
+    a[aria-current="page"] {
+      font-weight: bold;
+    }
+  }
+
+  /* Without this the grid column grows to fit wide <pre>/<table> content
+     instead of letting it scroll. */
+  article {
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+
+    /* Stacked, the sticky aside would pin itself over the article scrolling
+       underneath it. */
+    aside {
+      position: static;
+    }
+  }
+}

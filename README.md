@@ -72,6 +72,70 @@ __githash__ = githash(repo_path) # elsewhere
 
 Returns `'githash_unknown'` rather than raising when there's nothing to read.
 
+## `y2k_fastapi_helpers.md_docs`
+
+A browsable rendering of a directory tree of markdown files — read your repo's own
+docs inside the app. Needs the `md-docs` extra:
+
+```toml
+dependencies = ["y2k-fastapi-helpers[md-docs]"]
+```
+
+The library owns the routes (listing, rendering, traversal/hidden-file guards) but
+**the app owns the page template**, so the docs pages inherit your layout, nav, and
+styling with no coupling to the library:
+
+```python
+from y2k_fastapi_helpers.md_docs import create_md_docs_router
+
+app.include_router(create_md_docs_router(REPO_ROOT, templates, 'md_docs.html'))
+```
+
+Every render passes the template pre-built fragments (as `Markup` — no `| safe`
+needed), plus the raw data they were built from so you can take over any level of the
+markup:
+
+| name | contents |
+|---|---|
+| `menu` | `<aside>` nav of every doc, the open one marked `aria-current="page"` |
+| `article` | `<article>` of rendered markdown, or a "select a document" prompt |
+| `css` | the bundled stylesheet, for inlining in a `<style>` tag |
+| `path` / `files` | current doc path and the full listing, for custom markup |
+
+A complete template, assuming a pico-style layout:
+
+```html
+{% extends "common/layout.html" %}
+
+{% block title %}{{ path or 'Docs' }}{% endblock %}
+
+{% block style %}
+<style>
+  {{ css }}
+</style>
+{% endblock style %}
+
+{% block content %}
+<div class="md-docs">
+  {{ menu }}
+  {{ article }}
+</div>
+{% endblock content %}
+```
+
+The bundled CSS styles `aside` and `article` structurally inside a `.md-docs` grid
+container, so wrap the two fragments exactly as above (or ignore `css` and write your
+own).
+
+- Markdown renders with markdown-it's `gfm-like` preset: tables, strikethrough, and
+  linkified bare URLs.
+- The URL space mirrors the file layout under `md_root` (`/md/docs/TODO.md` ⇢
+  `docs/TODO.md`), so relative links between documents resolve on their own.
+- Hidden files and directories (`.git`, `.venv`, ...) are never listed or served;
+  non-markdown files and paths escaping the root are 404s.
+- Routes are named `md_docs_browser` and `md_docs_page` for `url_for`; mount point is
+  the `prefix` argument (default `/md`).
+
 ## Checks
 
 ```sh
