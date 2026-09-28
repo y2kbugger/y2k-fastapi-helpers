@@ -58,20 +58,6 @@ version automatically:
 Call `watcher.stop()` to shut the watch thread down; it is a daemon thread, so this is
 only needed in tests.
 
-## `y2k_fastapi_helpers.githash`
-
-Reads the commit hash `HEAD` points at, without shelling out to git or requiring a
-`.git` directory to exist:
-
-```python
-from y2k_fastapi_helpers.githash import githash
-
-__githash__ = githash()          # cwd
-__githash__ = githash(repo_path) # elsewhere
-```
-
-Returns `'githash_unknown'` rather than raising when there's nothing to read.
-
 ## `y2k_fastapi_helpers.md_docs`
 
 A browsable rendering of a directory tree of markdown files — read your repo's own

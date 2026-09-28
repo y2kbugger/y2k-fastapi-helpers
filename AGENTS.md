@@ -6,7 +6,7 @@ Each module under `y2k_fastapi_helpers/` is an independent helper with its own
 dependencies. Modules never import each other, and **`__init__.py` stays empty** — no
 re-exports. Importing the package must not drag in FastAPI, a watcher thread, or any
 other import-time cost that a consumer of one helper didn't ask for; consumers import
-the submodule they want (`from y2k_fastapi_helpers.githash import githash`).
+the submodule they want (`from y2k_fastapi_helpers.static import CacheBustedMount`).
 
 `py.typed` ships with the package, so consumers type-check against the real
 annotations. Keep public functions and classes annotated.
