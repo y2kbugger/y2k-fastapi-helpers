@@ -7,7 +7,7 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from y2k_fastapi_helpers.static import CacheBustedMount, StaticFilesWithWhitelist, StaticFileWatcher
+from y2k_fastapi_helpers.static import CacheBustedMount, StaticFilesWithWhitelist, StaticFileWatcher, has_extension
 
 
 def wait_until(condition: Callable[[], bool], timeout: float = 5.0) -> bool:
@@ -136,6 +136,30 @@ def test_serving_stale_version_after_modification_is_refused(client: TestClient,
 
     assert client.get(f"/static/a.css?v={v1}").status_code == 404
     assert client.get(f"/static/a.css?v={watcher.version('a.css')}").status_code == 200
+
+
+@pytest.mark.parametrize(
+    ("path", "served"),
+    [
+        ("a.css", True),
+        ("sub/b.js", True),
+        ("x.css.map", True),
+        ("x.CSS", False),
+        ("secretjs", False),  # the letters, but no dot: not a .js file
+        ("sub/xcss", False),
+        (".js", False),  # a dotfile, not a name with a suffix
+        ("sub/.css", False),
+        ("a.css/xjs", False),
+        ("a.py", False),
+    ],
+)
+def test_the_whitelist_matches_whole_suffixes(path: str, served: bool):
+    assert has_extension(path, ("css", ".js", "css.map")) is served
+
+
+def test_a_name_ending_in_the_letters_of_an_extension_is_not_served(client: TestClient, tmp_path: Path):
+    (tmp_path / "secretjs").write_text("not public")
+    assert client.get("/static/secretjs").status_code == 404
 
 
 def test_unversionable_paths_fall_through_to_plain_404s(client: TestClient):

@@ -33,6 +33,15 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 from watchfiles import watch
 
 
+def has_extension(path: str, extensions: Sequence[str]) -> bool:
+    """Whether the file `path` names ends in `.<ext>` for one of `extensions`,
+    given with or without the dot (`css.map` works). A whole suffix after a
+    dot and a name: `secretjs` and a bare `.js` are not `js` files."""
+    name = path.replace("\\", "/").rsplit("/", 1)[-1]
+    suffixes = ["." + ext.lstrip(".") for ext in extensions]
+    return any(len(name) > len(suffix) and name.endswith(suffix) for suffix in suffixes)
+
+
 class StaticFilesWithWhitelist(StaticFiles):
     """Serve static files out of the package root without leaking `*.py`/`*.html`.
 
@@ -45,7 +54,7 @@ class StaticFilesWithWhitelist(StaticFiles):
         super().__init__(directory=directory)
 
     def lookup_path(self, path: str) -> tuple[str, os.stat_result | None]:
-        if not any(path.endswith(ext) for ext in self.included_extensions):
+        if not has_extension(path, self.included_extensions):
             # A null stat is how StaticFiles spells "not found", and it turns
             # into a plain 404 instead of a 500 from a raised OSError.
             return path, None
@@ -64,7 +73,7 @@ class StaticFileWatcher:
         self._thread: threading.Thread | None = None
 
     def _is_watched(self, path: str) -> bool:
-        return any(path.endswith(ext) for ext in self._included_extensions)
+        return has_extension(path, self._included_extensions)
 
     def _ensure_watching(self):
         if self._thread is not None:
