@@ -19,7 +19,7 @@ from fastapi.templating import Jinja2Templates
 from markdown_it import MarkdownIt
 from markupsafe import Markup
 
-MD_DOCS_CSS = Markup((Path(__file__).parent / 'md_docs.css').read_text())
+MD_DOCS_CSS = Markup((Path(__file__).parent / 'md_docs.css').read_text(encoding='utf-8'))
 
 # "gfm-like" bundles tables, strikethrough, and linkify (bare URLs become links).
 _md = MarkdownIt("gfm-like")
@@ -79,6 +79,6 @@ def create_md_docs_router(md_root: Path, templates: Jinja2Templates, template_na
             return page(request, None, None)
         if target.suffix != '.md':
             raise HTTPException(status_code=404)
-        return page(request, str(relative), render_markdown(target.read_text()))
+        return page(request, str(relative), render_markdown(target.read_text(encoding='utf-8')))
 
     return router
